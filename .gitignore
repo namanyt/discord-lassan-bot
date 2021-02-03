@@ -1,0 +1,8 @@
+lib/utils/*
+test/*
+*.db
+lib/bot/token.0
+venv/*
+*.db-journal
+*.json
+__pychache__
