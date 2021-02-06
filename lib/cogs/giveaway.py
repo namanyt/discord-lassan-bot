@@ -5,6 +5,8 @@ from random import choice
 from discord import Embed, TextChannel
 from discord.ext.commands import Cog, command
 
+from lib.bot import settings
+
 
 def convert(time):
     pos = ['s', 'm', 'h', 'd']
@@ -46,6 +48,7 @@ class Giveaway(Cog):
                 msg = await self.bot.wait_for('message', timeout=15.0, check=check)
             except TimeoutError:
                 await ctx.send('You didn\'t answer in time, please try again quicker')
+                return
             else:
                 answers.append(msg.content)
 
@@ -86,11 +89,23 @@ class Giveaway(Cog):
         users.pop(users.index(self.bot.user))
         winner = choice(users)
         await channel.send(f"Congratulations ! {winner.mention} won {prize}")
+        g_winner = Embed(title='🎉 GIVEAWAY ENDED 🎉', timestamp=datetime.utcnow())
+        g_winner.add_field(name=f"Winner: {winner}", value=f"Prize: {prize}")
+        await giveaway.edit(embed=g_winner)
 
     @command(name='gstart')
-    async def start_giveaway(self, ctx, channel: TextChannel = None, time=None, *, prize: str = None):
+    async def start_giveaway(self, ctx, time=None, channel: TextChannel = None, *, prize: str = None):
         giveaway_time = convert(time)
-        if giveaway_time == -1:
+        giveaway_channel = channel
+        if channel is None:
+            giveaway_channel = self.bot.get_channel(settings['channel']['giveaway'])
+        elif time is None:
+            await ctx.send('please mention the time.\n eg:`1s`, `10m`, `12h`, `3d`')
+            return
+        elif prize is None:
+            await ctx.send('please also send the name of the prize')
+            return
+        elif giveaway_time == -1:
             await ctx.send('You did not mention the time properly.')
             await ctx.send('eg: use (s|m|h|d) after the time \n `10s`')
             return
@@ -105,14 +120,17 @@ class Giveaway(Cog):
         g_embed.add_field(name=f"Prize:", value=f"{prize}")
         g_embed.set_footer(text=f"Ends {time} from now")
 
-        giveaway = await channel.send(embed=g_embed)
+        giveaway = await giveaway_channel.send(embed=g_embed)
         await giveaway.add_reaction("🎉")
         await sleep(giveaway_time)
         new_msg = await channel.fetch_message(giveaway.id)
         users = await new_msg.reactions[0].users().flatten()
         users.pop(users.index(self.bot.user))
         winner = choice(users)
-        await channel.send(f"Congratulations ! {winner.mention} won {prize}")
+        await giveaway_channel.send(f"Congratulations ! {winner.mention} won {prize}")
+        g_winner = Embed(title='🎉 GIVEAWAY ENDED 🎉', timestamp=datetime.utcnow())
+        g_winner.add_field(name=f"Winner: {winner}", value=f"Prize: {prize}")
+        await giveaway.edit(embed=g_winner)
 
     @Cog.listener()
     async def on_ready(self):

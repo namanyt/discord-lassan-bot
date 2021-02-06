@@ -1,4 +1,4 @@
-from discord import Embed, Color, utils
+from discord import Embed, Color, utils, Member, Role
 from discord.ext.commands import Cog
 from discord.ext.commands import command
 
@@ -22,7 +22,7 @@ class Help(Cog):
             embed.add_field(name='1. 💰 Economy 💰', value=f'type `{self.bot.PREFIX}help economy`', inline=inline)
             embed.add_field(name='2. ⚙️ ️help_typeration ⚙️', value=f'type `{self.bot.PREFIX}help mod`', inline=inline)
             embed.add_field(name='3. ⬆️ Level ⬆️', value=f'type `{self.bot.PREFIX}help level`', inline=inline)
-            embed.add_field(name=f'4. {coolBoi} Fun', value=f'type `{self.bot.PREFIX}help fun`', inline=inline)
+            embed.add_field(name=f'4. {coolBoi} Fun {coolBoi}', value=f'type `{self.bot.PREFIX}help fun`', inline=inline)
 
             embed.add_field(name='5. 🖥️ Server 🖥️', value=f'type `{self.bot.PREFIX}help server`', inline=inline)
             embed.add_field(name='6. 🔈 Voice 🔈', value=f'type `{self.bot.PREFIX}help vc`', inline=inline)
@@ -38,33 +38,36 @@ class Help(Cog):
                              description='For VC commands\n (you have to be in a VC to use these commands)',
                              color=Color.random())
             inline_vc = False
-            embed_vc.add_field(name='Change Name', value=f'`{self.bot.PREFIX}name <name>` for changing the name of VC',
+            embed_vc.add_field(name='📛 Change Name 📛', value=f'`{self.bot.PREFIX}name <name>` for changing the name of VC',
                                inline=inline_vc)
-            embed_vc.add_field(name='Set Limit', value=f'`{self.bot.PREFIX}limit <limit>` for changing the limit of VC',
+            embed_vc.add_field(name='🛃 Set Limit 🛃', value=f'`{self.bot.PREFIX}limit <limit>` for changing the limit of VC',
                                inline=inline_vc)
-            embed_vc.add_field(name='Lock VC', value=f'`{self.bot.PREFIX}lock` to lock the VC you are in.',
+            embed_vc.add_field(name='🛑 Lock VC 🛑', value=f'`{self.bot.PREFIX}lock` to lock the VC you are in.',
                                inline=inline_vc)
-            embed_vc.add_field(name='Unlock VC', value=f'`{self.bot.PREFIX}unlock` to unlocking the VC you are in',
+            embed_vc.add_field(name='🟢 Unlock VC 🟢', value=f'`{self.bot.PREFIX}unlock` to unlocking the VC you are in',
                                inline=inline_vc)
             await ctx.send(embed=embed_vc)
 
         elif help_type == "fun":
-            gud = self.bot.get_emoji(767997067393105920)
+            gud = self.bot.get_emoji(settings['emojis']['gud'])
+            cute = self.bot.get_emoji(settings['emojis']['cute_cat'])
+            doot = self.bot.get_emoji(settings['emojis']['doot'])
+            cute_hi = self.bot.get_emoji(settings['emojis']['CuteDragonHi'])
             embed_fun = Embed(title="HELP MENU", description="for fun commands", color=Color.random())
             inline_fun = False
             embed_fun.add_field(name=f'😵 Kill',
                                 value=f'`{self.bot.PREFIX}kill <user>` to kill the user (not actaully)',
                                 inline=inline_fun)
-            embed_fun.add_field(name='hello', value=f'`{self.bot.PREFIX}hello`, Hello !', inline=inline_fun)
+            embed_fun.add_field(name=f'{cute_hi} hello', value=f'`{self.bot.PREFIX}hello`, Hello !', inline=inline_fun)
             embed_fun.add_field(name='lenny', value=f'`{self.bot.PREFIX}lenny`, just do it !', inline=inline_fun)
-            embed_fun.add_field(name='cute', value=f'`{self.bot.PREFIX}cute`, just do it !', inline=inline_fun)
-            embed_fun.add_field(name='doot', value=f'`{self.bot.PREFIX}doot <message>`, give a nice design to message',
+            embed_fun.add_field(name=f'{cute} cute', value=f'`{self.bot.PREFIX}cute`, just do it !', inline=inline_fun)
+            embed_fun.add_field(name=f'{doot} doot', value=f'`{self.bot.PREFIX}doot <message>`, give a nice design to message',
                                 inline=inline_fun)
-            embed_fun.add_field(name='dankrate', value=f'`{self.bot.PREFIX}drankrate`, tell your dankrate.',
+            embed_fun.add_field(name=f'{gud} dankrate', value=f'`{self.bot.PREFIX}drankrate`, tell your dankrate.',
                                 inline=inline_fun)
-            embed_fun.add_field(name='hack', value=f'`{self.bot.PREFIX}hack <user>`, hacks the user.',
+            embed_fun.add_field(name='💻 hack', value=f'`{self.bot.PREFIX}hack <user>`, hacks the user.',
                                 inline=inline_fun)
-            embed_fun.add_field(name='say', value=f'`{self.bot.PREFIX}say <message>`, says a message',
+            embed_fun.add_field(name='🗣️ say', value=f'`{self.bot.PREFIX}say <message>`, says a message',
                                 inline=inline_fun)
             await ctx.send(embed=embed_fun)
 

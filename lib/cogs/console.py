@@ -1,4 +1,6 @@
+from discord import TextChannel
 from discord.ext.commands import Cog
+from discord.ext.commands import command
 
 from lib.bot import settings
 
@@ -6,6 +8,17 @@ from lib.bot import settings
 class Console(Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @command(name='send')
+    async def send_message(self, ctx, channel: TextChannel = None, *, message: str = None):
+        if channel is None:
+            await ctx.send('please mention the channel to send', delete_after=2)
+            return
+        elif message is None:
+            await ctx.send('please put some message to send', delete_after=2)
+            return
+        await channel.send(message)
+        return
 
     @Cog.listener()
     async def on_message(self, message):
