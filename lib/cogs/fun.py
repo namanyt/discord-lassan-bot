@@ -4,6 +4,8 @@ from random import choice, randint
 from discord import Embed, Member, Color
 from discord.ext.commands import Cog, command, Greedy, cooldown, BucketType
 
+from lib.bot import settings
+
 
 class Fun(Cog):
     def __init__(self, bot):
@@ -14,15 +16,18 @@ class Fun(Cog):
         await ctx.send(f"{str(choice(['hello', 'hi', 'hey', 'What sup'])).upper()} {ctx.author.display_name}!")
 
     @command(name='kill')
-    async def kill_user(self, ctx, user: Greedy[Member] = None):
+    async def kill_user(self, ctx, user: Member = None):
         kill_log = [f'"{ctx.author.display_name}" took "{user.display_name}\'s" balls out. wtf',
                     f'"{ctx.author.display_name}" roasted "{user.display_name}"',
                     f'"{user.display_name}" fell out of the world (WTF ?!)',
                     f'"{user.display_name}" fell down a cliff while playing Pokemon Go. Good job on keeping your nose in that puny phone.',
                     f'"{user.display_name}" takes an arrow to the knee. And everywhere else.',
                     f'"{user.display_name}" drowned in their own tears.']
-
-        if not user or user == self.bot.user:
+        if user is None:
+            wut = self.bot.get_emoji(settings['emojis']['wut'])
+            await ctx.send(f"{wut} who is the user to kill ?")
+            return
+        if user == self.bot.user:
             em = Embed(title='You cannot kill me !', color=Color.random())
             em.set_image(url="https://i.kym-cdn.com/photos/images/newsfeed/001/488/935/c09.jpg")
             await ctx.send(embed=em)

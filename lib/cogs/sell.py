@@ -2,6 +2,8 @@ from json import load, dump
 
 from discord.ext.commands import Cog, command, cooldown, BucketType
 
+from lib.db import db
+
 
 class Sell(Cog):
     def __init__(self, bot):
@@ -17,9 +19,6 @@ class Sell(Cog):
         with open('./data/json/inv.json', 'r') as f:
             inv = load(f)
 
-        with open('./data/json/bank.json', 'r') as f:
-            bank = load(f)
-
         if category in shop:
             for items in shop[category]:
                 price = items['price']
@@ -31,11 +30,9 @@ class Sell(Cog):
                         inv[str(user.id)]['inv']['item_name'].remove(item_name)
                         inv[str(user.id)]['inv']['item_id'].remove(item_id)
                         inv[str(user.id)]['inv']['item_desc'].remove(item_desc)
-                        bank[str(user.id)]['wallet'] += (price//2)
+                        db.execute("UPDATE economy SET Wallet = Wallet + ? WHERE UserID = ?",
+                                   price, user.id)
                         await ctx.send(f'{item_name} sold successfully')
-
-                        with open('./data/json/bank.json', 'w') as f:
-                            dump(bank, f)
 
                         with open('./data/json/inv.json', 'w') as f:
                             dump(inv, f)

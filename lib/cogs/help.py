@@ -55,19 +55,19 @@ class Help(Cog):
             cute_hi = self.bot.get_emoji(settings['emojis']['CuteDragonHi'])
             embed_fun = Embed(title="HELP MENU", description="for fun commands", color=Color.random())
             inline_fun = False
-            embed_fun.add_field(name=f'😵 Kill',
+            embed_fun.add_field(name=f'😵 Kill 😵',
                                 value=f'`{self.bot.PREFIX}kill <user>` to kill the user (not actaully)',
                                 inline=inline_fun)
-            embed_fun.add_field(name=f'{cute_hi} hello', value=f'`{self.bot.PREFIX}hello`, Hello !', inline=inline_fun)
+            embed_fun.add_field(name=f'{cute_hi} hello {cute_hi}', value=f'`{self.bot.PREFIX}hello`, Hello !', inline=inline_fun)
             embed_fun.add_field(name='lenny', value=f'`{self.bot.PREFIX}lenny`, just do it !', inline=inline_fun)
-            embed_fun.add_field(name=f'{cute} cute', value=f'`{self.bot.PREFIX}cute`, just do it !', inline=inline_fun)
-            embed_fun.add_field(name=f'{doot} doot', value=f'`{self.bot.PREFIX}doot <message>`, give a nice design to message',
+            embed_fun.add_field(name=f'{cute} cute {cute}', value=f'`{self.bot.PREFIX}cute`, just do it !', inline=inline_fun)
+            embed_fun.add_field(name=f'{doot} doot {doot}', value=f'`{self.bot.PREFIX}doot <message>`, give a nice design to message',
                                 inline=inline_fun)
-            embed_fun.add_field(name=f'{gud} dankrate', value=f'`{self.bot.PREFIX}drankrate`, tell your dankrate.',
+            embed_fun.add_field(name=f'{gud} dankrate {gud}', value=f'`{self.bot.PREFIX}drankrate`, tell your dankrate.',
                                 inline=inline_fun)
-            embed_fun.add_field(name='💻 hack', value=f'`{self.bot.PREFIX}hack <user>`, hacks the user.',
+            embed_fun.add_field(name='💻 hack 💻', value=f'`{self.bot.PREFIX}hack <user>`, hacks the user.',
                                 inline=inline_fun)
-            embed_fun.add_field(name='🗣️ say', value=f'`{self.bot.PREFIX}say <message>`, says a message',
+            embed_fun.add_field(name='🗣️ say 🗣️', value=f'`{self.bot.PREFIX}say <message>`, says a message',
                                 inline=inline_fun)
             await ctx.send(embed=embed_fun)
 

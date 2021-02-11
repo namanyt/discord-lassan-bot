@@ -2,6 +2,8 @@ from json import load, dump
 
 from discord.ext.commands import Cog, command, cooldown, BucketType
 
+from lib.db import db
+
 
 class Buy(Cog):
     def __init__(self, bot):
@@ -11,14 +13,12 @@ class Buy(Cog):
     @cooldown(1, 2, BucketType.user)
     async def buy_item(self, ctx, category, item_user):
         user = ctx.author
+
         with open('./data/json/shop.json', 'r') as f:
             shop = load(f)
 
         with open('./data/json/inv.json', 'r') as f:
             inv = load(f)
-
-        with open('./data/json/bank.json', 'r') as f:
-            bank = load(f)
 
         if category in shop:
             for items in shop[category]:
@@ -31,13 +31,10 @@ class Buy(Cog):
                         inv[str(user.id)]['inv']['item_name'].append(item_name)
                         inv[str(user.id)]['inv']['item_id'].append(item_id)
                         inv[str(user.id)]['inv']['item_desc'].append(item_desc)
-                        bank[str(user.id)]['wallet'] -= price
+                        db.execute("UPDATE economy SET Wallet = Wallet - ? WHERE UserID = ?",
+                                   price, user.id)
                         await ctx.send(f'{item_name} bought successfully !')
                         await ctx.send(f'remember that {item_desc}')
-
-                        with open('./data/json/bank.json', 'w') as f:
-                            dump(bank, f)
-
                         with open('./data/json/inv.json', 'w') as f:
                             dump(inv, f)
 

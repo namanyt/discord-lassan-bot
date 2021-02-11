@@ -1,7 +1,9 @@
 from json import load, dump
+from typing import Optional
 
-from discord import Color, Embed
+from discord import Color, Embed, Member
 from discord.ext.commands import Cog, command, cooldown, BucketType
+
 
 
 class Inventory(Cog):
@@ -33,8 +35,8 @@ class Inventory(Cog):
 
     @command(name='inv', aliases=['bag', 'inventory'])
     @cooldown(1, 2, BucketType.user)
-    async def open_inv(self, ctx):
-        user = ctx.author
+    async def open_inv(self, ctx, user: Optional[Member]):
+        user = user or ctx.author
         await self.make_inv(user=user)
         inventory_embed = Embed(title=f'{user.name}\'s Inventory',
                                 color=Color.random())

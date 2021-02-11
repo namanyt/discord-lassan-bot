@@ -1,3 +1,5 @@
+from asyncio import sleep
+
 from discord.ext.commands import Cog
 
 from lib.bot import settings
@@ -14,9 +16,14 @@ class Emojireaction(Cog):
 
     @Cog.listener()
     async def on_message(self, message):
+        if message.author.id == self.bot.user.id:
+            return
+
         good_Word = ["gg", "-_-", "gm", "bye", "yeah boi", "boiii", "XD", ";-;", "^_^", "sorry", "noob", "sry"]
         reaction_in_announcements = self.bot.get_emoji(settings['emojis']['sleepy_boi'])
+        reaction_in_taggernation = self.bot.get_emoji(settings['emojis']['taggernation'])
         announcements_channel = self.bot.get_channel(settings['channel']['announcements'])
+        taggernation_channel = self.bot.get_channel(settings['channel']['taggernation'])
 
         if message.content:
             if ":" == message.content[0] and ":" == message.content[-1]:
@@ -30,9 +37,15 @@ class Emojireaction(Cog):
 
         if message.channel.id == announcements_channel.id:
             await message.add_reaction(reaction_in_announcements)
+            m = await message.channel.send("@everyone")
+            await sleep(1)
+            await m.delete()
 
-        if message.author.id == self.bot.user.id:
-            return
+        if message.channel.id == taggernation_channel.id:
+            await message.add_reaction(reaction_in_taggernation)
+            m = await message.channel.send("@everyone")
+            await sleep(1)
+            await m.delete()
 
         for word in good_Word:
             if word.lower() in message.content == "gg".lower():

@@ -1,50 +1,32 @@
-from discord import Member, Guild
-from discord.ext.commands import Cog, command, cooldown, BucketType
+from discord import Member
+from discord.ext.commands import Cog, command
 from discord.utils import get
 
 from lib.bot import settings
+from lib.db import db
 
+temp_VC = []
 
-class Voice(Cog):
+class VC(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    temp_VC = []
-
     @command(name='name')
-    @cooldown(1, 200, BucketType.user)
-    async def change_VC_name(self, ctx, *, name: str = None):
+    async def change_name(self, ctx, *, name: str = None):
         voice_state = ctx.author.voice
         channel = voice_state.channel
         if voice_state is None:
             await ctx.send('you need to be in a temp voice channel to run this command')
             return
 
-        temp_channels = self.temp_VC
+        temp_channels = temp_VC
 
         for temp_channel in temp_channels:
             if channel.id == temp_channel:
                 await channel.edit(name=name)
                 await ctx.send(f'successfully changed name to {name}')
 
-    @command(name='limit')
-    @cooldown(1, 200, BucketType.user)
-    async def change_VC_limit(self, ctx, limit: int):
-        voice_state = ctx.author.voice
-        channel = voice_state.channel
-        if voice_state is None:
-            await ctx.send('you need to be in a temp voice channel to run this command')
-            return
-
-        temp_channels = self.temp_VC
-
-        for temp_channel in temp_channels:
-            if channel.id == temp_channel:
-                await channel.edit(user_limit=limit)
-                await ctx.send(f'successfully set {limit} limit')
-
     @command(name='lock')
-    @cooldown(1, 200, BucketType.user)
     async def locking_VC(self, ctx):
         voice_state = ctx.author.voice
         channel = voice_state.channel
@@ -52,15 +34,15 @@ class Voice(Cog):
             await ctx.send('you need to be in a temp voice channel to run this command')
             return
 
-        temp_channels = self.temp_VC
+        temp_channels = temp_VC
 
         for temp_channel in temp_channels:
             if channel.id == temp_channel:
-                await channel.edit(user_limit=1)
+                await channel.edit(view_channel
+                                   =False)
                 await ctx.send('locked VC')
 
     @command(name='unlock')
-    @cooldown(1, 200, BucketType.user)
     async def unlocking_VC(self, ctx):
         voice_state = ctx.author.voice
         channel = voice_state.channel
@@ -68,11 +50,11 @@ class Voice(Cog):
             await ctx.send('you need to be in a temp voice channel to run this command')
             return
 
-        temp_channels = self.temp_VC
+        temp_channels = temp_VC
 
         for temp_channel in temp_channels:
             if channel.id == temp_channel:
-                await channel.edit(user_limit=0)
+                await channel.edit(connect=True)
                 await ctx.send('Unlocked the VC')
 
     @Cog.listener()
@@ -89,26 +71,28 @@ class Voice(Cog):
         if after.channel is not None:
             if after.channel.id == settings['channel']['p_vc']:
                 for guild in self.bot.guilds:
-                    maincategory = get(
-                        guild.categories, id=settings['channel']['p_vc_cat'])
-                    channel2 = await guild.create_voice_channel(name=f'{member.display_name}\'s channel',
-                                                                category=maincategory)
+                    mainCategory = get(
+                        guild.categories, id=settings['channel']['p_vc_cat']
+                    )
+                    channel2 = await guild.create_voice_channel(name=f'{member.display_name}',
+                                                                category=mainCategory)
                     await channel2.set_permissions(member, connect=True, mute_members=True, manage_channels=True)
                     await member.move_to(channel2)
-                    self.temp_VC.append(channel2.id)
+
+                    temp_VC.append(channel2.id)
 
                     def check(x, y, z):
                         return len(channel2.members) == 0
 
                     await self.bot.wait_for('voice_state_update', check=check)
                     await channel2.delete()
-                    self.temp_VC.remove(channel2.id)
+                    temp_VC.remove(channel2.id)
 
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
-            self.bot.cogs_ready.ready_up('voice')
+            self.bot.cogs_ready.ready_up("vc")
 
 
 def setup(bot):
-    bot.add_cog(Voice(bot))
+    bot.add_cog(VC(bot))

@@ -72,7 +72,7 @@ class Giveaway(Cog):
 
         prize = answers[2]
 
-        await ctx.send(f"The Giveaway will be ot hosted in {channel.mention} and will loast for {answers[1]} !")
+        await ctx.send(f"The Giveaway will be ot hosted in {channel.mention} and will lost for {answers[1]} !", delete_after=4)
 
         g_embed = Embed(title='🎉 GIVEAWAY 🎉',
                         description=f'Hosted by: {ctx.author.mention}',
@@ -92,6 +92,7 @@ class Giveaway(Cog):
         g_winner = Embed(title='🎉 GIVEAWAY ENDED 🎉', timestamp=datetime.utcnow())
         g_winner.add_field(name=f"Winner: {winner}", value=f"Prize: {prize}")
         await giveaway.edit(embed=g_winner)
+        await ctx.message.delete()
 
     @command(name='gstart')
     async def start_giveaway(self, ctx, time=None, channel: TextChannel = None, *, prize: str = None):
@@ -131,6 +132,7 @@ class Giveaway(Cog):
         g_winner = Embed(title='🎉 GIVEAWAY ENDED 🎉', timestamp=datetime.utcnow())
         g_winner.add_field(name=f"Winner: {winner}", value=f"Prize: {prize}")
         await giveaway.edit(embed=g_winner)
+        await ctx.message.delete()
 
     @Cog.listener()
     async def on_ready(self):

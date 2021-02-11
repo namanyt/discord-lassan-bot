@@ -37,7 +37,7 @@ class Console(Cog):
                     await channel_object.send(f"{console_message}")
 
             if '<@' in message.content:
-                await console_channel.send(f"{message.author} -> {message.content}")
+                await console_channel.send(f"{message.author} --> {message.content}")
 
     @Cog.listener()
     async def on_ready(self):

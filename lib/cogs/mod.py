@@ -8,6 +8,7 @@ from discord.ext.commands import command, has_permissions, bot_has_permissions
 from discord.ext.commands import cooldown, BucketType
 
 from lib.bot import settings
+from lib.db import db
 
 
 class Mod(Cog):
@@ -33,69 +34,43 @@ class Mod(Cog):
         else:
             await ctx.send("The limit provided is not within acceptable bounds. (Less than 100)")
 
-    async def open_warnsheet(self):
-        with open("./data/json/warn.json", "r") as f:
-            warn = load(f)
-        return warn
-
-    async def open_user_warnsheet(self, user: Greedy[Member]):
-        warn = await self.open_warnsheet()
-
-        if str(user.id) in warn:
-            return False
-        else:
-            warn[str(user.id)] = {}
-            warn[str(user.id)]["name"] = user.display_name
-            warn[str(user.id)]["warn"] = 100
-
-        with open("./data/json/warn.json", "w") as f:
-            dump(warn, f)
-        return True
-
     @command(name='mute')
-    @cooldown(1, 2, type=BucketType.user)
-    async def mute_members(self, ctx, member: Member = None):
+    async def mute_member(self, ctx, member: Member = None):
         if member is None:
-            await ctx.send('do it again but put the mention the member too', delete_after=3)
-            return
-        user = member
-        mute_role = ctx.guild.get_role(settings['roles']['mute'])
-        await self.open_user_warnsheet(user)
-        warn = await self.open_warnsheet()
-
-        if warn[str(user.id)]['warn'] == 1:
-            await ctx.send(f'{member.display_name} is already muted', delete_after=3)
+            await ctx.send('do it again, but also put the name of the member to mute', delete_after=2)
             return
 
-        warn[str(user.id)]['warn'] = 1
+        try:
+            db.execute("INSERT INTO mutes (UserID) VALUES (?)", member.id)
+        except:
+            pass
 
-        await ctx.send(f'muted {member.display_name}', delete_after=3)
-        await member.add_roles(mute_role)
-        with open('./data/json/warn.json', 'w') as f:
-            dump(warn, f)
-        return True
+        is_muted = db.record("SELECT mute FROM mutes WHERE UserID = ?", member.id)
+        if is_muted == (1,):
+            await ctx.send(f'{member.display_name} is already muted')
+            return
+
+        await member.add_roles(member.guild.get_role(settings['roles']['mute']))
+        db.execute("UPDATE mutes SET mute = mute + ? WHERE UserID = ?", 1, member.id)
 
     @command(name='unmute')
-    @cooldown(1, 2, type=BucketType.user)
     async def unmute_member(self, ctx, member: Member = None):
         if member is None:
-            await ctx.send('do it again but put the mention the member too', delete_after=3)
+            await ctx.send('do it again, but also put the name of the member to unmute', delete_after=2)
             return
-        user = member
-        mute_role = ctx.guild.get_role(settings['roles']['mute'])
-        await self.open_user_warnsheet(user)
-        warn = await self.open_warnsheet()
 
-        if warn[str(user.id)]['warn'] == 0:
-            await ctx.send(f'{member.display_name} member is not mute', delete_after=3)
-            return False
+        try:
+            db.execute("INSERT INTO mutes (UserID) VALUES (?)", member.id)
+        except:
+            pass
 
-        warn[str(user.id)]['warn'] = 0
-        await ctx.send(f'{member.display_name} unmuted', delete_after=3)
-        await member.remove_roles(mute_role)
-        with open('./data/json/warn.json', 'w') as f:
-            dump(warn, f)
-        return True
+        is_muted = db.record("SELECT mute FROM mutes WHERE UserID = ?", member.id)
+        if is_muted == (0,):
+            await ctx.send(f'{member.display_name} is already unmuted')
+            return
+
+        await member.remove_roles(member.guild.get_role(settings['roles']['mute']))
+        db.execute("UPDATE mutes SET mute = mute - ? WHERE UserID = ?", 1, member.id)
 
     @Cog.listener()
     async def on_ready(self):

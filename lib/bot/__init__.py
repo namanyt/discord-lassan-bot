@@ -3,11 +3,12 @@ from json import load
 from pathlib import Path
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import ActivityType, Status, Activity
+from apscheduler.triggers.cron import CronTrigger
+from discord import ActivityType, Status, Activity, Embed
 from discord import Intents, Forbidden, NotFound
 from discord.ext.commands import Bot as BotBase, Context, CommandOnCooldown, NotOwner
 from discord.ext.commands import (CommandNotFound, BadArgument, MissingRequiredArgument)
-
+from requests import get
 
 with open('./lib/bot/settings.json', 'r') as f:
     settings = load(f)
@@ -117,24 +118,25 @@ class Bot(BotBase):
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, BadArgument):
             await ctx.send('This command might be in correct')
-
+            raise exc
         elif isinstance(exc, CommandNotFound):
             await ctx.send('This command is not available in my database')
-
+            raise exc
         elif isinstance(exc, MissingRequiredArgument):
             await ctx.send("Command is incomplete")
-
+            raise exc
         elif isinstance(exc, CommandOnCooldown):
             await ctx.send(f"That command is on cooldown. try again in {exc.retry_after:,.2f} secs.")
-
+            raise exc
         elif hasattr(exc, "original"):
             if isinstance(exc.original, Forbidden):
                 await ctx.send("I dont have the permission to that...")
 
         elif isinstance(exc, NotOwner):
             await ctx.send("Sorry, you don't actually own this bot")
-
+            raise exc
         elif isinstance(exc, NotFound):
+            raise exc
             pass
 
         else:
@@ -146,7 +148,7 @@ class Bot(BotBase):
             self.guild = self.get_guild((settings['guild']))
             self.scheduler.start()
             await self.change_presence(activity=Activity(type=ActivityType.streaming, name="bored... i'm AFK"),
-                                       status=Status.dnd, afk=True)
+                                       status=Status.do_not_disturb, afk=True)
             await self.stdout.send("Bonjour !")
 
             self.update_db()
